@@ -1,0 +1,14 @@
+INPUT_DATA_DIR: "/u/project/pasaniuc/pasaniucdata/admixture/1000G_haplotype/1000GP_Phase3"
+CHR: 22 # use the chromosome 22
+POPS:
+  - "AFR"
+  - "EUR"
+  - "EAS"
+MAF_THRESHOLD: 0.01
+
+# HAPGEN setting
+HAPGEN_NUM_HAPLOS: 20000
+HAPGEN2_PATH: "/u/project/pasaniuc/pasaniucdata/software/hapgen/hapgen2"
+
+# admixture simulation
+ADMIX_SIMU_DIR: "/u/project/pasaniuc/pasaniucdata/admixture/software/admix-simu"
