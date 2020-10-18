@@ -64,7 +64,7 @@ rule simulate_admixture:
         pop1_prefix = input.pop1_phgeno.rsplit('.', 1)[0]
         pop2_prefix = input.pop2_phgeno.rsplit('.', 1)[0]
         
-        if wildcards.num_haplos >= config['HAPGEN_NUM_HAPLOS'] / 2:
+        if int(wildcards.num_haplos) > config['HAPGEN_NUM_HAPLOS'] / 2:
             print("""
                   Warning: number of haplotypes in the admixture population should be smaller than 
                   half of ancestral population haplotypes. Please adjust numbers accordingly.

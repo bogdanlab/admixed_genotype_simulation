@@ -1,3 +1,4 @@
 .snakemake/
 __pycache__/
 out/
+job_out
