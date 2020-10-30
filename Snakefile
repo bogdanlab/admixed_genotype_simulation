@@ -24,11 +24,13 @@ rule extract_raw:
     run:
         if not os.path.exists("out/0_raw"):
             os.makedirs("out/0_raw")
+        assert (config['MAF_MODE'] in ['AND', 'OR']), 'MAF_MODE must be one of the [AND/OR]'
         extract_raw_data(raw_dir=config["INPUT_DATA_DIR"], 
                          out_dir="out/0_raw", 
                          pops=config['POPS'],
                          chr_i=config['CHR'],
-                         maf_threshold=config['MAF_THRESHOLD'])
+                         maf_threshold=config['MAF_THRESHOLD'],
+                         maf_mode=config['MAF_MODE'])
 
 rule extend_hapgen:
     input:
