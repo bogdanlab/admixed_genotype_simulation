@@ -15,7 +15,8 @@ rule extract_raw:
     input:
         join(config["INPUT_DATA_DIR"], 'genetic_map_chr{}_combined_b37.txt'.format(config['CHR'])),
         join(config["INPUT_DATA_DIR"], '1000GP_Phase3_chr{}.legend.gz'.format(config['CHR'])),
-        join(config["INPUT_DATA_DIR"], '1000GP_Phase3_chr{}.hap.gz'.format(config['CHR']))
+        join(config["INPUT_DATA_DIR"], '1000GP_Phase3_chr{}.hap.gz'.format(config['CHR'])),
+        join(config["ARRAY_SNP_DIR"], "{}.bim".format(config["CHR"]))
     output:
         "out/0_raw/chr{}.snp".format(config['CHR']),
         "out/0_raw/chr{}.map".format(config['CHR']),
@@ -25,10 +26,11 @@ rule extract_raw:
         if not os.path.exists("out/0_raw"):
             os.makedirs("out/0_raw")
         assert (config['MAF_MODE'] in ['AND', 'OR']), 'MAF_MODE must be one of the [AND/OR]'
-        extract_raw_data(raw_dir=config["INPUT_DATA_DIR"], 
+        extract_raw_data(raw_dir=config["INPUT_DATA_DIR"],
                          out_dir="out/0_raw", 
                          pops=config['POPS'],
                          chr_i=config['CHR'],
+                         array_snp_file=join(config["ARRAY_SNP_DIR"], "{}.bim".format(config["CHR"])),
                          maf_threshold=config['MAF_THRESHOLD'],
                          maf_mode=config['MAF_MODE'])
 

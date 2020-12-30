@@ -3,6 +3,9 @@ CHR: 22 # use the chromosome 22
 POPS:
   - "AFR"
   - "EUR"
+  
+# Array SNP filtering
+ARRAY_SNP_DIR: "/u/project/sgss/UKBB/data/cal"
 
 # MAF filtering
 MAF_THRESHOLD: 0.05
