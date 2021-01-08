@@ -1,17 +1,19 @@
 from os.path import join
-from utils import extract_raw_data, extend_hapgen, simulate_admixture
+from utils import *
 import os
+import yaml
 
 configfile: "config.yaml"
 
+with open("sim_setting.yaml", 'r') as f:
+    sim_setting = yaml.safe_load(f)
+    sim_prefix_list = [setting2prefix(*parse_sim_setting(sim)) for sim in sim_setting]
 
 rule all:
     input:
         join("out/0_raw/chr{}.snp".format(config['CHR'])),
         expand("out/1_hapgen/chr{}.{{pop}}.phgeno".format(config['CHR']), pop=config["POPS"]),
-        "out/2_admix_geno/EUR_0.5_AFR_0.5_10_500/admix.phgeno",
-        "out/2_admix_geno/EUR_0.5_AFR_0.5_50_500/admix.phgeno",
-        "out/2_admix_geno/EUR_0.5_AFR_0.5_100_500/admix.phgeno"
+        expand("out/2_admix_geno/{prefix}/admix.phgeno", prefix=sim_prefix_list)
 
 rule extract_raw:
     input:
@@ -58,30 +60,30 @@ rule extend_hapgen:
 
 rule simulate_admixture:   
     input:
+        "out/1_hapgen/chr{}.EUR.phgeno".format(config['CHR']),
+        "out/1_hapgen/chr{}.AFR.phgeno".format(config['CHR']),
         snp_file="out/0_raw/chr{}.snp".format(config['CHR']),
-        pop1_phgeno="out/1_hapgen/chr{}.{{pop1}}.phgeno".format(config['CHR']),
-        pop2_phgeno="out/1_hapgen/chr{}.{{pop2}}.phgeno".format(config['CHR']),
     output:
-        "out/2_admix_geno/{pop1}_{prop1}_{pop2}_{prop2}_{num_gens}_{num_haplos}/admix.phgeno"
+        "out/2_admix_geno/{prefix}/admix.phgeno"
     run:
         out_dir = output[0][0 : output[0].rfind('/')]
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
-        pop1_prefix = input.pop1_phgeno.rsplit('.', 1)[0]
-        pop2_prefix = input.pop2_phgeno.rsplit('.', 1)[0]
-        
-        if int(wildcards.num_haplos) > config['HAPGEN_NUM_HAPLOS'] / 2:
+        pop_prop, n_gen, n_sample = prefix2setting(wildcards.prefix)
+        prefix_list = [f"out/1_hapgen/chr{config['CHR']}.{pop}" for pop in pop_prop.keys()]
+        admix_prop = list(pop_prop.values()) 
+	
+        if int(n_sample) > config['HAPGEN_NUM_HAPLOS'] / 2:
             print("""
                   Warning: number of haplotypes in the admixture population should be smaller than 
                   half of ancestral population haplotypes. Please adjust numbers accordingly.
                   """)
         
-        simulate_admixture(input_prefix_list=[pop1_prefix, pop2_prefix], 
-                           admix_prop=[wildcards.prop1, wildcards.prop2], 
-                           num_gens=wildcards.num_gens,
-                           num_haplos=wildcards.num_haplos, 
+        simulate_admixture(input_prefix_list=prefix_list, 
+                           admix_prop=admix_prop,
+                           num_gens=n_gen,
+                           num_haplos=n_sample, 
                            snp_file=input.snp_file,
                            out_dir=out_dir, 
                            admix_simu_dir=config['ADMIX_SIMU_DIR'])
-        
 
