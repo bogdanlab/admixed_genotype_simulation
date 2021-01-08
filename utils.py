@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import subprocess
 from os.path import join
-
+import yaml
 import os
 from shutil import copyfile
 from itertools import compress
@@ -136,3 +136,39 @@ def simulate_admixture(input_prefix_list, admix_prop, num_gens, num_haplos, snp_
                     join(out_dir, 'admix.hanc')])
     print(cmd)
     os.system(cmd)
+
+def parse_sim_setting(sim):
+    """
+    Parse a simulation setting
+    the population name should be one of "EUR", "AFR", "EAS"
+    and the proportion should sum up to 1
+    # Arguments
+    - sim: a dict
+    # Returns
+    - pop_prop: a dictionary indicating the population proportion
+    - n_gen: number of generations for admixture
+    - n_sample: number of samples to generate
+    """
+
+    pop_prop = {anc: sim[anc] for anc in ["EUR", "AFR", "EAS"] if anc in sim}
+    assert sum(pop_prop.values()) == 1, "Proportion should sum up to 1."
+    n_gen = sim["N_GEN"]
+    n_sample = sim["N_SAMPLE"]
+    return pop_prop, n_gen, n_sample
+
+def setting2prefix(pop_prop, n_gen, n_sample):
+    prefix = ""
+    for anc in pop_prop:
+        prefix += f"{anc}_{pop_prop[anc]}_"
+    prefix += f"{n_gen}_{n_sample}"
+    return prefix
+
+def prefix2setting(prefix):
+    splitted = prefix.split('_')
+    n_gen, n_sample = int(splitted[-2]), int(splitted[-1])
+    assert len(splitted) % 2 == 0
+    n_pop = len(splitted) // 2 - 1
+    pop_prop = dict()
+    for pop_i in range(n_pop):
+        pop_prop[splitted[2 * pop_i]] = float(splitted[2 * pop_i + 1])
+    return pop_prop, n_gen, n_sample

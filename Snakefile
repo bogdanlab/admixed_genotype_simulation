@@ -9,7 +9,9 @@ rule all:
     input:
         join("out/0_raw/chr{}.snp".format(config['CHR'])),
         expand("out/1_hapgen/chr{}.{{pop}}.phgeno".format(config['CHR']), pop=config["POPS"]),
-        "out/2_admix_geno/EUR_0.5_AFR_0.5_10_10000/admix.phgeno"
+        "out/2_admix_geno/EUR_0.5_AFR_0.5_10_500/admix.phgeno",
+        "out/2_admix_geno/EUR_0.5_AFR_0.5_50_500/admix.phgeno",
+        "out/2_admix_geno/EUR_0.5_AFR_0.5_100_500/admix.phgeno"
 
 rule extract_raw:
     input:

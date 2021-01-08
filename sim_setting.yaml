@@ -1,0 +1,12 @@
+- EUR: 0.5
+  AFR: 0.5
+  N_GEN: 10
+  N_SAMPLE: 500
+- EUR: 0.5
+  AFR: 0.5
+  N_GEN: 50
+  N_SAMPLE: 500
+- EUR: 0.5
+  AFR: 0.5
+  N_GEN: 100
+  N_SAMPLE: 500 
