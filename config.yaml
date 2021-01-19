@@ -5,7 +5,8 @@ POPS:
   - "EUR"
   
 # Array SNP filtering
-ARRAY_SNP_DIR: "/u/project/sgss/UKBB/data/cal"
+SNP_LIST: "data/ukb_imputed_blocks.txt"
+# ARRAY_SNP_DIR: "/u/project/sgss/UKBB/data/cal"
 
 # MAF filtering
 MAF_THRESHOLD: 0.05
@@ -15,5 +16,5 @@ MAF_MODE: "OR"
 HAPGEN_NUM_HAPLOS: 20000
 HAPGEN2_PATH: "/u/project/pasaniuc/pasaniucdata/software/hapgen/hapgen2"
 
-# admixture simulation
+# admixture simulation software
 ADMIX_SIMU_DIR: "/u/project/pasaniuc/pasaniucdata/admixture/software/admix-simu"

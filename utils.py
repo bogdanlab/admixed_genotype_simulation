@@ -9,7 +9,7 @@ from shutil import copyfile
 from itertools import compress
 import gzip
 
-def extract_raw_data(raw_dir, out_dir, pops, chr_i, array_snp_file, maf_threshold, maf_mode):
+def extract_raw_data(raw_dir, out_dir, pops, chr_i, snp_list, maf_threshold, maf_mode):
     """
     extract_raw_data: extract data from 1000G Phase3 phased data,
         downloaded from https://mathgen.stats.ox.ac.uk/impute/1000GP_Phase3.html
@@ -26,7 +26,8 @@ def extract_raw_data(raw_dir, out_dir, pops, chr_i, array_snp_file, maf_threshol
         haps = f.readlines()
     
     # filter with array snp
-    array_pos_list = pd.read_csv(array_snp_file, delim_whitespace=True, header=None)[3].values
+    with open(snp_list) as f:
+        snp_list = [line.strip() for line in f.readlines()]
     
     # filter biallelic SNPs and SNPs with the given MAF threshold in ALL / ANY population
     maf_filter_index = ((maf_threshold < legend[pops]) & 
@@ -35,7 +36,8 @@ def extract_raw_data(raw_dir, out_dir, pops, chr_i, array_snp_file, maf_threshol
         maf_filter_index = maf_filter_index.all(axis=1)
     elif maf_mode == 'OR':
         maf_filter_index = maf_filter_index.any(axis=1)
-    filter_index = maf_filter_index & (legend['TYPE'] == 'Biallelic_SNP') & (legend['position'].isin(array_pos_list))
+        
+    filter_index = maf_filter_index & (legend['TYPE'] == 'Biallelic_SNP') & (legend['id'].isin(snp_list))
     print(f'#extract_raw_data: filtering, {sum(filter_index)} / {len(filter_index)} left')
     legend = legend[filter_index].reset_index(drop=True)
     haps = list(compress(haps, filter_index))
