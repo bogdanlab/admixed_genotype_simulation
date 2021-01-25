@@ -5,50 +5,51 @@ import yaml
 
 configfile: "config.yaml"
 
-with open("sim_setting.yaml", 'r') as f:
-    sim_setting = yaml.safe_load(f)
-    sim_prefix_list = [setting2prefix(*parse_sim_setting(sim)) for sim in sim_setting]
+SIM_SETTINGS = [
+    {"EUR": 0.5, "AFR": 0.5, "N_GEN": 10, "N_SAMPLE": 10000}
+    ]
+
+sim_code_list = [setting2prefix(*parse_sim_setting(sim)) for sim in SIM_SETTINGS]
 
 rule all:
     input:
-        join("out/0_raw/chr{}.snp".format(config['CHR'])),
-        expand("out/1_hapgen/chr{}.{{pop}}.phgeno".format(config['CHR']), pop=config["POPS"]),
-        expand("out/2_admix_geno/{prefix}/admix.phgeno", prefix=sim_prefix_list)
+        "out/ukb_array/snp.txt",
+        expand("out/ukb_array/{pop}.phgeno", pop=config["POPS"]),
+        expand("out/ukb_array/{prefix}/admix.phgeno", prefix=sim_code_list)
 
 rule extract_raw:
     input:
-        join(config["INPUT_DATA_DIR"], 'genetic_map_chr{}_combined_b37.txt'.format(config['CHR'])),
-        join(config["INPUT_DATA_DIR"], '1000GP_Phase3_chr{}.legend.gz'.format(config['CHR'])),
-        join(config["INPUT_DATA_DIR"], '1000GP_Phase3_chr{}.hap.gz'.format(config['CHR'])),
+        join(config["KG_DATA_DIR"], 'genetic_map_chr{}_combined_b37.txt'.format(config['CHR'])),
+        join(config["KG_DATA_DIR"], '1000GP_Phase3_chr{}.legend.gz'.format(config['CHR'])),
+        join(config["KG_DATA_DIR"], '1000GP_Phase3_chr{}.hap.gz'.format(config['CHR'])),
+        snp_list=join(config["DATA_DIR"], "{dataset}.snp_list")
     output:
-        "out/0_raw/chr{}.snp".format(config['CHR']),
-        "out/0_raw/chr{}.map".format(config['CHR']),
-        "out/0_raw/chr{}.legend".format(config['CHR']),
-        expand("out/0_raw/chr{}.{{pop}}.hap".format(config['CHR']), pop=config["POPS"])
+        "out/{dataset}/snp.txt",
+        "out/{dataset}/map.txt",
+        "out/{dataset}/legend.txt",
+        expand("out/{{dataset}}/{pop}.hap", pop=config["POPS"])
     run:
-        if not os.path.exists("out/0_raw"):
-            os.makedirs("out/0_raw")
+        out_dir = output[0].rsplit('/', 1)[0]
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
         assert (config['MAF_MODE'] in ['AND', 'OR']), 'MAF_MODE must be one of the [AND/OR]'
-        extract_raw_data(raw_dir=config["INPUT_DATA_DIR"],
-                         out_dir="out/0_raw", 
+        extract_raw_data(raw_dir=config["KG_DATA_DIR"],
+                         out_dir=out_dir, 
                          pops=config['POPS'],
                          chr_i=config['CHR'],
-                         snp_list=config["SNP_LIST"],
+                         snp_list=input.snp_list,
                          maf_threshold=config['MAF_THRESHOLD'],
                          maf_mode=config['MAF_MODE'])
 
 rule extend_hapgen:
     input:
-        map_file="out/0_raw/chr{}.map".format(config['CHR']),
-        snp_file="out/0_raw/chr{}.snp".format(config['CHR']),
-        legend_file="out/0_raw/chr{}.legend".format(config['CHR']),
-        hap_file="out/0_raw/chr{}.{{pop}}.hap".format(config['CHR'])
+        map_file="{prefix}/map.txt",
+        snp_file="{prefix}/snp.txt",
+        legend_file="{prefix}/legend.txt",
+        hap_file="{prefix}/{pop}.hap"
     output:
-        "out/1_hapgen/chr{}.{{pop}}.phgeno".format(config['CHR'])
+        "{prefix}/{pop}.phgeno"
     run:
-        if not os.path.exists("out/1_hapgen"):
-            os.makedirs("out/1_hapgen")
-        
         extend_hapgen(map_file=input.map_file,
                       legend_file=input.legend_file,
                       hap_file=input.hap_file,
@@ -59,17 +60,15 @@ rule extend_hapgen:
 
 rule simulate_admixture:   
     input:
-        "out/1_hapgen/chr{}.EUR.phgeno".format(config['CHR']),
-        "out/1_hapgen/chr{}.AFR.phgeno".format(config['CHR']),
-        snp_file="out/0_raw/chr{}.snp".format(config['CHR']),
+        "{dataset}/EUR.phgeno",
+        "{dataset}/AFR.phgeno",
+        snp_file="{dataset}/snp.txt"
     output:
-        "out/2_admix_geno/{prefix}/admix.phgeno"
+        "{dataset}/{sim_code}/admix.phgeno"
     run:
         out_dir = output[0][0 : output[0].rfind('/')]
-        if not os.path.exists(out_dir):
-            os.makedirs(out_dir)
-        pop_prop, n_gen, n_sample = prefix2setting(wildcards.prefix)
-        prefix_list = [f"out/1_hapgen/chr{config['CHR']}.{pop}" for pop in pop_prop.keys()]
+        pop_prop, n_gen, n_sample = prefix2setting(wildcards.sim_code)
+        prefix_list = [f"{wildcards.dataset}/{pop}" for pop in pop_prop.keys()]
         admix_prop = list(pop_prop.values()) 
 	
         if int(n_sample) > config['HAPGEN_NUM_HAPLOS'] / 2:

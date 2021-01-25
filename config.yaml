@@ -1,12 +1,11 @@
-INPUT_DATA_DIR: "/u/project/pasaniuc/pasaniucdata/admixture/1000G_haplotype/1000GP_Phase3"
-CHR: 22 # use the chromosome 22
+KG_DATA_DIR: "/u/project/pasaniuc/pasaniucdata/admixture/1000G_haplotype/1000GP_Phase3"
+CHR: 20
 POPS:
   - "AFR"
   - "EUR"
   
 # Array SNP filtering
-SNP_LIST: "data/ukb_imputed_blocks.txt"
-# ARRAY_SNP_DIR: "/u/project/sgss/UKBB/data/cal"
+DATA_DIR: "data"
 
 # MAF filtering
 MAF_THRESHOLD: 0.05

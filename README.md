@@ -23,16 +23,17 @@ qsub snakemake.sh
 ```python
 import numpy as np
 import pandas as pd
-chr_i = 22
+chr_i = 20
 kg_legend = pd.read_csv(f'/u/project/pasaniuc/pasaniucdata/admixture/1000G_haplotype/1000GP_Phase3/1000GP_Phase3_chr{chr_i}.legend.gz', delim_whitespace=True)
 ukb_bim = pd.read_csv(f"/u/project/sgss/UKBB/data/cal/{chr_i}.bim", delim_whitespace=True, header=None)
 ukb_index = kg_legend['position'].isin(ukb_bim[3].values)
 duplicated = kg_legend['position'].duplicated()
 biallelic = kg_legend['TYPE'] == "Biallelic_SNP"
-np.savetxt(f"data/ukb_array.{chr_i}.txt", kg_legend.loc[ukb_index & (~duplicated) & biallelic, 'id'].values, fmt='%s')
+np.savetxt(f"data/ukb_array.snp_list", kg_legend.loc[ukb_index & (~duplicated) & biallelic, 'id'].values, fmt='%s')
 ```
 
-2. Extract five regions of SNPs 
+
+2. Extract five regions of dense SNPs 
 ```python
 import numpy as np
 import pandas as pd

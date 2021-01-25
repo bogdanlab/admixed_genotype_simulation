@@ -43,14 +43,14 @@ def extract_raw_data(raw_dir, out_dir, pops, chr_i, snp_list, maf_threshold, maf
     haps = list(compress(haps, filter_index))
     haps = [hap.strip().replace(' ', '') for hap in haps]
 
-    copyfile(map_file, join(out_dir, f'chr{chr_i}.map'))
-    legend.to_csv(join(out_dir, f'chr{chr_i}.legend'), index=False, sep=' ')
+    copyfile(map_file, join(out_dir, 'map.txt'))
+    legend.to_csv(join(out_dir, 'legend.txt'), index=False, sep=' ')
     
     for pop in pops:
 
         pop_index = np.repeat((sample['GROUP'] == pop).values, 2)
         pop_haps = [' '.join(compress(hap, pop_index)) for hap in haps]
-        with open(join(out_dir, f'chr{chr_i}.{pop}.hap'), 'w') as f:
+        with open(join(out_dir, f'{pop}.hap'), 'w') as f:
             f.writelines('\n'.join(pop_haps))
 
     # produce SNP file here
@@ -60,7 +60,7 @@ def extract_raw_data(raw_dir, out_dir, pops, chr_i, snp_list, maf_threshold, maf
             'POS': legend['position'].values,
             'A1': legend['a0'].values,
             'A2': legend['a1'].values}
-    pd.DataFrame(snp_info).to_csv(join(out_dir, f'chr{chr_i}.snp'), header=False, index=False, sep=' ', float_format='%.6f')
+    pd.DataFrame(snp_info).to_csv(join(out_dir, "snp.txt"), header=False, index=False, sep=' ', float_format='%.6f')
 
 def extend_hapgen(map_file, legend_file, hap_file, num_haplos, hapgen2_path, out_prefix):
     """
