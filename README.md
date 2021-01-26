@@ -23,7 +23,7 @@ qsub snakemake.sh
 ```python
 import numpy as np
 import pandas as pd
-chr_i = 20
+chr_i = 2
 kg_legend = pd.read_csv(f'/u/project/pasaniuc/pasaniucdata/admixture/1000G_haplotype/1000GP_Phase3/1000GP_Phase3_chr{chr_i}.legend.gz', delim_whitespace=True)
 ukb_bim = pd.read_csv(f"/u/project/sgss/UKBB/data/cal/{chr_i}.bim", delim_whitespace=True, header=None)
 ukb_index = kg_legend['position'].isin(ukb_bim[3].values)

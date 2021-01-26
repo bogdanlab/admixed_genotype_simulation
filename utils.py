@@ -19,16 +19,14 @@ def extract_raw_data(raw_dir, out_dir, pops, chr_i, snp_list, maf_threshold, maf
         pops: which population to extract
         chr_i: chromosome to extract TODO: None to indicate all of the chromosomes
     """
+
+    with open(snp_list) as f:
+        snp_list = [line.strip() for line in f.readlines()]
+
     sample = pd.read_csv(join(raw_dir, '1000GP_Phase3.sample'), delim_whitespace=True)
     map_file = join(raw_dir, f'genetic_map_chr{chr_i}_combined_b37.txt')
     legend = pd.read_csv(join(raw_dir, f'1000GP_Phase3_chr{chr_i}.legend.gz'), delim_whitespace=True)
-    with gzip.open(join(raw_dir, f'1000GP_Phase3_chr{chr_i}.hap.gz'), 'rt', encoding='utf-8') as f:
-        haps = f.readlines()
-    
-    # filter with array snp
-    with open(snp_list) as f:
-        snp_list = [line.strip() for line in f.readlines()]
-    
+
     # filter biallelic SNPs and SNPs with the given MAF threshold in ALL / ANY population
     maf_filter_index = ((maf_threshold < legend[pops]) & 
                         (legend[pops] < 1 - maf_threshold))
@@ -40,14 +38,20 @@ def extract_raw_data(raw_dir, out_dir, pops, chr_i, snp_list, maf_threshold, maf
     filter_index = maf_filter_index & (legend['TYPE'] == 'Biallelic_SNP') & (legend['id'].isin(snp_list))
     print(f'#extract_raw_data: filtering, {sum(filter_index)} / {len(filter_index)} left')
     legend = legend[filter_index].reset_index(drop=True)
-    haps = list(compress(haps, filter_index))
+
+    haps = []
+    from tqdm import tqdm
+    with gzip.open(join(raw_dir, f'1000GP_Phase3_chr{chr_i}.hap.gz'), 'rt', encoding='utf-8') as f:
+        for snp_i, line in tqdm(enumerate(f)):
+            if filter_index[snp_i]:
+                haps.append(line)
+    print(len(haps))
     haps = [hap.strip().replace(' ', '') for hap in haps]
 
     copyfile(map_file, join(out_dir, 'map.txt'))
     legend.to_csv(join(out_dir, 'legend.txt'), index=False, sep=' ')
     
     for pop in pops:
-
         pop_index = np.repeat((sample['GROUP'] == pop).values, 2)
         pop_haps = [' '.join(compress(hap, pop_index)) for hap in haps]
         with open(join(out_dir, f'{pop}.hap'), 'w') as f:

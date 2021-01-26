@@ -1,5 +1,5 @@
 KG_DATA_DIR: "/u/project/pasaniuc/pasaniucdata/admixture/1000G_haplotype/1000GP_Phase3"
-CHR: 20
+CHR: 2
 POPS:
   - "AFR"
   - "EUR"
