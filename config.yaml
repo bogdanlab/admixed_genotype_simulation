@@ -8,7 +8,7 @@ POPS:
 DATA_DIR: "data"
 
 # MAF filtering
-MAF_THRESHOLD: 0.05
+MAF_THRESHOLD: 0.01
 MAF_MODE: "OR"
 
 # HAPGEN setting

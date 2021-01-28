@@ -6,16 +6,17 @@ import yaml
 configfile: "config.yaml"
 
 SIM_SETTINGS = [
-    {"EUR": 0.5, "AFR": 0.5, "N_GEN": 10, "N_SAMPLE": 10000}
+    {"EUR": 0.5, "AFR": 0.5, "N_GEN": 10, "N_SAMPLE": 10000},
+    {"EUR": 0.2, "AFR": 0.8, "N_GEN": 7, "N_SAMPLE": 10000},
     ]
 
 sim_code_list = [setting2prefix(*parse_sim_setting(sim)) for sim in SIM_SETTINGS]
 
 rule all:
     input:
-        "out/ukb_array/snp.txt",
-        expand("out/ukb_array/{pop}.phgeno", pop=config["POPS"]),
-        expand("out/ukb_array/{prefix}/admix.phgeno", prefix=sim_code_list)
+        expand("out/{dataset}/snp.txt", dataset=["kg_sample"]),
+        expand("out/{dataset}/{pop}.phgeno", pop=config["POPS"], dataset=["kg_sample"]),
+        expand("out/{dataset}/{prefix}/admix.phgeno", prefix=sim_code_list, dataset=["kg_sample"])
 
 rule extract_raw:
     input:

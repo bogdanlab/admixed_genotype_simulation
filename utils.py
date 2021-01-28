@@ -78,7 +78,9 @@ def extend_hapgen(map_file, legend_file, hap_file, num_haplos, hapgen2_path, out
     """
     
     # cope with disease loci
-    positionOfDiseaseSNP = pd.read_csv(legend_file, delim_whitespace=True)['position'][0]
+    legend = pd.read_csv(legend_file, delim_whitespace=True)
+    disease_snp_index = np.where((legend[["AFR", "EUR"]] > 0).all(axis=1))[0][0]
+    positionOfDiseaseSNP = legend['position'][disease_snp_index]
     riskAllele = 1
     hetRisk = 1
     homRisk = 1
