@@ -7,12 +7,8 @@ POPS:
 # Array SNP filtering
 DATA_DIR: "data"
 
-# MAF filtering
-MAF_THRESHOLD: 0.01
-MAF_MODE: "OR"
-
 # HAPGEN setting
-HAPGEN_NUM_HAPLOS: 20000
+HAPGEN_NUM_HAPLOS: 200_000
 HAPGEN2_PATH: "/u/project/pasaniuc/pasaniucdata/software/hapgen/hapgen2"
 
 # admixture simulation software

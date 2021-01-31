@@ -37,14 +37,14 @@ np.savetxt(f"data/ukb_array.snp_list", kg_legend.loc[ukb_index & (~duplicated) &
 import numpy as np
 import pandas as pd
 chr_i = 2
-n_snp = 30_000
+n_snp = 1_000
 kg_legend = pd.read_csv(f'/u/project/pasaniuc/pasaniucdata/admixture/1000G_haplotype/1000GP_Phase3/1000GP_Phase3_chr{chr_i}.legend.gz', delim_whitespace=True)
 maf_threshold = 0.01
 
-maf_mode = "OR"
+maf_mode = "AND"
 pops = ["AFR", "EUR"]
 # filter biallelic SNPs and SNPs with the given MAF threshold in ALL / ANY population
-maf_filter_index = ((maf_threshold < kg_legend[pops]) & 
+maf_filter_index = ((maf_threshold < kg_legend[pops]) &
                     (kg_legend[pops] < 1 - maf_threshold))
 if maf_mode == 'AND':
     maf_filter_index = maf_filter_index.all(axis=1)
@@ -53,9 +53,9 @@ elif maf_mode == 'OR':
 
 biallelic = kg_legend['TYPE'] == "Biallelic_SNP"
 filter_index = np.where(maf_filter_index & biallelic)[0]
-filter_index = filter_index[np.linspace(0, len(filter_index) - 1, num=n_snp).astype(int)]
+filter_index = filter_index[np.linspace(0, len(filter_index) - 1, num=n_snp + 2)[1:-1].astype(int)]
 
-np.savetxt(f"data/kg_sample.snp_list", kg_legend.loc[filter_index, 'id'].values, fmt='%s')
+np.savetxt(f"data/kg_1k.snp_list", kg_legend.loc[filter_index, 'id'].values, fmt='%s')
 ```
 
 

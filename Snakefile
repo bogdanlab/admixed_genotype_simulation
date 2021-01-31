@@ -6,17 +6,17 @@ import yaml
 configfile: "config.yaml"
 
 SIM_SETTINGS = [
-    {"EUR": 0.5, "AFR": 0.5, "N_GEN": 10, "N_SAMPLE": 10000},
-    {"EUR": 0.2, "AFR": 0.8, "N_GEN": 7, "N_SAMPLE": 10000},
+    # {"EUR": 0.5, "AFR": 0.5, "N_GEN": 10, "N_SAMPLE": 10000},
+    {"EUR": 0.2, "AFR": 0.8, "N_GEN": 7, "N_SAMPLE": 80_000},
     ]
 
 sim_code_list = [setting2prefix(*parse_sim_setting(sim)) for sim in SIM_SETTINGS]
 
 rule all:
     input:
-        expand("out/{dataset}/snp.txt", dataset=["kg_sample"]),
-        expand("out/{dataset}/{pop}.phgeno", pop=config["POPS"], dataset=["kg_sample"]),
-        expand("out/{dataset}/{prefix}/admix.phgeno", prefix=sim_code_list, dataset=["kg_sample"])
+        expand("out/{dataset}/snp.txt", dataset=["kg_1k"]),
+        expand("out/{dataset}/{pop}.phgeno", pop=config["POPS"], dataset=["kg_1k"]),
+        expand("out/{dataset}/{prefix}/admix.phgeno", prefix=sim_code_list, dataset=["kg_1k"])
 
 rule extract_raw:
     input:
@@ -33,14 +33,12 @@ rule extract_raw:
         out_dir = output[0].rsplit('/', 1)[0]
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
-        assert (config['MAF_MODE'] in ['AND', 'OR']), 'MAF_MODE must be one of the [AND/OR]'
+            
         extract_raw_data(raw_dir=config["KG_DATA_DIR"],
                          out_dir=out_dir, 
                          pops=config['POPS'],
                          chr_i=config['CHR'],
-                         snp_list=input.snp_list,
-                         maf_threshold=config['MAF_THRESHOLD'],
-                         maf_mode=config['MAF_MODE'])
+                         snp_list=input.snp_list)
 
 rule extend_hapgen:
     input:

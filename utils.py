@@ -9,7 +9,7 @@ from shutil import copyfile
 from itertools import compress
 import gzip
 
-def extract_raw_data(raw_dir, out_dir, pops, chr_i, snp_list, maf_threshold, maf_mode):
+def extract_raw_data(raw_dir, out_dir, pops, chr_i, snp_list):
     """
     extract_raw_data: extract data from 1000G Phase3 phased data,
         downloaded from https://mathgen.stats.ox.ac.uk/impute/1000GP_Phase3.html
@@ -26,16 +26,8 @@ def extract_raw_data(raw_dir, out_dir, pops, chr_i, snp_list, maf_threshold, maf
     sample = pd.read_csv(join(raw_dir, '1000GP_Phase3.sample'), delim_whitespace=True)
     map_file = join(raw_dir, f'genetic_map_chr{chr_i}_combined_b37.txt')
     legend = pd.read_csv(join(raw_dir, f'1000GP_Phase3_chr{chr_i}.legend.gz'), delim_whitespace=True)
-
-    # filter biallelic SNPs and SNPs with the given MAF threshold in ALL / ANY population
-    maf_filter_index = ((maf_threshold < legend[pops]) & 
-                        (legend[pops] < 1 - maf_threshold))
-    if maf_mode == 'AND':
-        maf_filter_index = maf_filter_index.all(axis=1)
-    elif maf_mode == 'OR':
-        maf_filter_index = maf_filter_index.any(axis=1)
         
-    filter_index = maf_filter_index & (legend['TYPE'] == 'Biallelic_SNP') & (legend['id'].isin(snp_list))
+    filter_index = (legend['TYPE'] == 'Biallelic_SNP') & (legend['id'].isin(snp_list))
     print(f'#extract_raw_data: filtering, {sum(filter_index)} / {len(filter_index)} left')
     legend = legend[filter_index].reset_index(drop=True)
 
