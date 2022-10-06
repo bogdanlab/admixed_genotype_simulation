@@ -1,8 +1,8 @@
 # Admixed Genotype Simulation
 A Snakemake pipeline for simulating genotypes for admixed population. The aim is to have fully automatic pipeline for simulating genotypes for admixed populations.
 
-## Note for updated software
-**Please see https://kangchenghou.github.io/admix-kit/simulate-admix-genotype.html for a more intuitive and easy-to-use interface.**
+## ***Note for updated software***
+> **Please see https://kangchenghou.github.io/admix-kit/simulate-admix-genotype.html for a more intuitive and easy-to-use interface.**
 
 ## Requirements
 1. Reference phased genotype panels: download from https://mathgen.stats.ox.ac.uk/impute/1000GP_Phase3.html
